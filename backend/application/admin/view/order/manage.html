@@ -1,0 +1,127 @@
+{extend name="action" /}
+{block name="title"}
+{/block}
+{block name="style"}
+{/block}
+{block name="content"}
+<div class="layui-container">
+    <table class="layui-table">
+    <colgroup>
+    <!-- <col width="150"> -->
+    <!-- <col width="200"> -->
+    <!-- <col> -->
+    </colgroup>
+    <thead>
+    <tr>
+    <th>封面图</th>
+    <th>商品名</th>
+    <th>价格</th>
+    <th>兑换人</th>
+    <th>手机号</th>
+    <th>状态</th>
+    <th>管理</th>
+    </tr> 
+    </thead>
+    <tbody>
+    {volist name="list" id="item"}
+    <tr>
+        <td>
+            <img width="40" height="40" src="{$item.goods.bannerUrl}">
+        </td>
+        <td>{$item.goods.title}</td>
+        <td>{$item.price}</td>
+        <td>{$item.user.realname}</td>
+        <td>{$item.user.phone}</td>
+        <td>{$item.statusText}</td>
+    <td>
+        {if ($item.status == 0)}
+        <button data-id="{$item.id}" type="button" class="send layui-btn layui-btn-normal layui-btn-sm">标记为已处理</button>
+        {/if}
+        {if ($item.status == 1)}
+        <button data-id="{$item.id}" type="button" class="cancelsend layui-btn layui-btn-sm">取消标记</button>
+        {/if}
+        {if ($item.status == 0)}
+        <button data-id="{$item.id}" type="button" class="cancel layui-btn layui-btn-danger layui-btn-sm">取消订单</button>
+        {/if}
+        {if ($item.status == -1)}
+        <button data-id="{$item.id}" type="button" class="rewait layui-btn layui-btn-warm layui-btn-sm">恢复订单</button>
+        {/if}
+    </td>
+    </tr>
+    {/volist}
+    </tbody>
+    </table>
+    {include file="page"}
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    layui.use(['element', 'jquery', 'layer'], function () {
+        var layer = layui.layer;
+        // 标记订单
+        $('.send').click(function (e) {
+            var id = $(e.target).attr('data-id');
+            layer.confirm('确定标记为已处理吗', {
+                btn: ['确定', '取消']
+            }, function () {
+                http.get(api.sendOrder, {id: id}, function (res, status) {
+                    layer.msg(res.msg);
+                    layout.refresh();
+                }, function (res, status) {            
+                    layer.alert(res.err);
+                })
+            }, function () {
+                // layer.msg('取消操作');
+            })
+        });
+        // 取消订单
+        $('.cancel').click(function (e) {
+            var id = $(e.target).attr('data-id');
+            layer.confirm('确定取消订单吗', {
+                btn: ['确定', '取消']
+            }, function () {
+                http.get(api.cancelOrder, {id: id}, function (res, status) {
+                    layer.msg(res.msg);
+                    layout.refresh();
+                }, function (res, status) {            
+                    layer.alert(res.err);
+                })
+            }, function () {
+                // layer.msg('取消操作');
+            })
+        });
+        // 取消标记订单
+        $('.cancelsend').click(function (e) {
+            var id = $(e.target).attr('data-id');
+            layer.confirm('确定取消标记吗', {
+                btn: ['确定', '取消']
+            }, function () {
+                http.get(api.cancelSendOrder, {id: id}, function (res, status) {
+                    layer.msg(res.msg);
+                    layout.refresh();
+                }, function (res, status) {            
+                    layer.alert(res.err);
+                })
+            }, function () {
+                // layer.msg('取消操作');
+            })
+        });
+        // 恢复订单
+        $('.rewait').click(function (e) {
+            var id = $(e.target).attr('data-id');
+            layer.confirm('确定恢复吗', {
+                btn: ['确定', '取消']
+            }, function () {
+                http.get(api.rewaitOrder, {id: id}, function (res, status) {
+                    layer.msg(res.msg);
+                    layout.refresh();
+                }, function (res, status) {            
+                    layer.alert(res.err);
+                })
+            }, function () {
+                // layer.msg('取消操作');
+            })
+        });
+    })
+</script>
+{/block}

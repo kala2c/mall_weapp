@@ -1,0 +1,24 @@
+<script>
+    layui.use(['element', 'jquery', 'layer'], function () {
+        var layer = layui.layer;
+        // $('.layui-collapse').click();
+        $('.edit-info').click(function (e) {
+            var id = $(e.target).attr('data-id');
+            layer.open({
+                type: 2,
+                title: '调整信息',
+                area: ['500px', '300px'],
+                content: ['/action/member/editinfo?id=' + id]
+            });
+        });
+        $('.edit-points').click(function (e) {
+            var id = $(e.target).attr('data-id');
+            layer.open({
+                type: 2,
+                title: '调整积分',
+                area: ['600px', '500px'],
+                content: ['/action/member/editpoints?id=' + id]
+            });
+        });
+    });
+</script>

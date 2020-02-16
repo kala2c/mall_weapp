@@ -1,0 +1,68 @@
+	<form class="layui-form" style="margin-top: 20px;">
+        
+        {if (isset($edit))}
+        	<input id="input-id" type="hidden" name="id" value="{$goods.id}">		
+        {/if}
+		<div class="layui-form-item">
+			<label class="layui-form-label">商品名</label>
+	    	<div class="layui-input-block" style="width: 200px;">
+	      		<input type="text" name="title" required  lay-verify="required" placeholder="输入商品名" autocomplete="off" class="layui-input" value="{if (isset($edit))}{$goods.title}{/if}">
+	    	</div>
+	  	</div>
+
+		<div class="layui-form-item">
+			<label class="layui-form-label">商品封面图</label>
+			<input type="hidden" id="input-banner" name="banner" lay-verify="required" value="{if (isset($edit))}{$goods.banner}{/if}">
+			<button type="button" class="layui-btn" id="upload-banner-img">
+				<i class="layui-icon">&#xe67c;</i>上传图片
+			</button>
+
+			<span id="upload-banner-img-name"></span>
+			<button id="upload-banner-img-btn" class="layui-btn layui-btn-normal layui-btn">查看</button>
+			<div class="layui-form-mid layui-word-aux">不能超过1MB</div>
+			<div class="banner-preview">
+<!--				<div class="add-btn-wrap">-->
+<!--					<div class="add-btn">-->
+<!--						<i></i> <b></b>-->
+<!--					</div>-->
+<!--				</div>-->
+				{if (isset($edit))}
+				{volist name="$goods.bannerUrlList" id="banner" key="k"}
+				<div class="img-wrap">
+					<span class="del-btn" data-index="{$k-1}">X</span>
+					<img src="{$banner}" alt="">
+				</div>
+				{/volist}
+				{/if}
+			</div>
+		</div>
+
+
+	  	<div class="layui-form-item" style="margin-top: 12px;">
+			<label class="layui-form-label" name="price">价格</label>
+	    	<div class="layui-input-block" style="width: 120px;">
+	      		<input type="text" name="price" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input" value="{if (isset($edit))}{$goods.price}{/if}">
+	    	</div>
+	  	</div>
+
+	  	<div class="layui-form-item">
+			<label class="layui-form-label" >库存</label>
+	    	<div class="layui-input-block" style="width: 120px;">
+	      		<input type="text" name="number" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input" value="{if (isset($edit))}{$goods.number}{/if}">
+	    	</div>
+	  	</div>
+	  
+	 
+		<div class="layui-form-item layui-form-text">
+	    	<label class="layui-form-label">商品介绍</label>
+	    	<div class="layui-input-block" style="width: 400px;">
+	      		<textarea name="content" placeholder="" class="layui-textarea" style="height: 100px;">{if (isset($edit))}{$goods.content}{/if}</textarea>
+	    	</div>
+	  	</div>
+	  	<div class="layui-form-item">
+	    	<div class="layui-input-block">
+	      		<button class="layui-btn" lay-submit lay-filter="goodsForm">提交</button>
+	      		<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+	    	</div>
+	  	</div>
+	</form>

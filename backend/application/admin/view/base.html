@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    {block name="title"}{/block}
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    {block name="style"}{/block}
+</head>
+<body class="layui-layout-body">
+<div id="warning">
+    <h1>当前浏览器未开启或不支持javascript,无法使用本系统,请更换浏览器,尽量不要使用ie浏览器进行访问</h1>
+</div>
+{block name="content"}{/block}
+<script src="/static/layui/layui.js"></script>
+<script src="/static/js/jquery.min.js"></script>
+<script>
+    $('#warning').remove();
+    if (!localStorage) {
+        alert('当前浏览器未开启或不支持缓存功能,无法使用本系统,请更换浏览器,尽量不要使用ie浏览器进行访问');
+    }
+</script>
+<script src="/static/js/api.js"></script>
+{block name="script"}{/block}
+</body>
+</html>

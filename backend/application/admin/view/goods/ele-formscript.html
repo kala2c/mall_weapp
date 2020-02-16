@@ -1,0 +1,83 @@
+<script>
+	layui.use(['element', 'form', 'upload'], function(){
+		var element = layui.element;
+		var upload = layui.upload;
+	    var form = layui.form;
+	  
+	    //监听提交
+	    form.on('submit(goodsForm)', function(data){
+	        // layer.msg(JSON.stringify(data.field));
+			http.post(api.addgoods, data.field, function (res, status) {
+				if (status === 200) {
+					layer.msg('操作成功');
+					if ($('#input-id').val()) {
+		                layout.layClose(1200, function () {
+		                    parent.window.location.reload();
+		                });
+					} else {
+						setTimeout(function () {
+							window.open('/action/goods/manage', '_self');
+						}, 1000);
+					}
+				}
+			}, function (err, status) {
+				layer.msg(err.err);
+			});
+	        return false;
+	    });
+
+
+	    var imgList = [];
+
+	    var imgWrap = $('.img-wrap>img');
+
+	    if (imgWrap.length) {
+	        var prefix = '/uploads/';
+	        imgWrap.each(function (index, item) {
+                var src = $(item).attr("src");
+                imgList.push(src.substr(prefix.length));
+            })
+        }
+        var currentIndex = imgList.length;
+		// 图片上传
+		var token = localStorage.getItem('chunyun_token') || null;
+		upload.render({
+			elem: '#upload-banner-img' //绑定元素
+			, url: api.uploadimg //上传接口
+			, headers: {'Authorization': 'Bearer ' + token}
+			, accept: 'images'
+			, acceptMime: 'images/*'
+			, size: 1024
+			, done: function (res) {
+				layer.msg('上传成功');
+				imgList.push(res.path);
+                $('#input-banner').val(imgList.filter(condition).toString());
+                var img = $('<div>');
+                img.addClass('img-wrap');
+                img.html(
+				    '<span class="del-btn" data-index="'+currentIndex+'">X</span>'+
+				    '<img src=/uploads/'+res.path+'>');
+                $('.banner-preview').append(img);
+                currentIndex++
+            }
+			, error: function (res) {
+				layer.alert(res.err)
+			}
+		});
+
+		function condition(item) {
+		    return item.length;
+        }
+
+		$(".banner-preview").click(function (event) {
+            var $tar = $(event.target);
+            if ($tar.attr('class') !== 'del-btn') {
+                return
+            }
+            var index = $tar.attr('data-index');
+            imgList[index] = "";
+            $('#input-banner').val(imgList.filter(condition).toString());
+            $tar.parent().remove();
+        });
+	});
+</script>

@@ -1,0 +1,43 @@
+表单代码
+
+<!--<div class="layui-form-item">-->
+    <!--<label class="layui-form-label">复选框</label>-->
+    <!--<div class="layui-input-block">-->
+    <!--<input type="checkbox" name="like[write]" title="写作">-->
+    <!--<input type="checkbox" name="like[read]" title="阅读" checked>-->
+    <!--<input type="checkbox" name="like[dai]" title="发呆">-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--<div class="layui-form-item">-->
+    <!--<label class="layui-form-label">开关</label>-->
+    <!--<div class="layui-input-block">-->
+    <!--<input type="checkbox" name="switch" lay-skin="switch">-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--<div class="layui-form-item">-->
+    <!--<label class="layui-form-label">单选框</label>-->
+    <!--<div class="layui-input-block">-->
+    <!--<input type="radio" name="sex" value="男" title="男">-->
+    <!--<input type="radio" name="sex" value="女" title="女" checked>-->
+    <!--</div>-->
+    <!--</div>-->
+分页php代码：
+<pre>
+    $page = $this->request->get('page') ?? 1;
+    $pageCount = 130;
+    $offset = ($page - 1) * $pageCount;
+    // $map = [
+    //     'status' => 0
+    // ];
+    $total = ActivityModel::count();
+    $pageMax = ceil($total/$pageCount);
+    $activityList = 
+        ActivityModel::
+            with('college')
+            ->field($field)
+            ->limit($offset, $pageCount)
+            ->select();
+    $this->assign('page', $page);
+    $this->assign('pageMax', $pageMax);
+    $this->assign('activityList', $activityList);
+</pre>

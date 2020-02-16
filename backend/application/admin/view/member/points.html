@@ -1,0 +1,71 @@
+{extend name="base" /}
+{block name="title"}
+{/block}
+{block name="style"}
+<style>
+    .container {
+        padding: 20px 30px;
+    }
+</style>
+{/block}
+{block name="content"}
+<br><br>
+<div class="container">
+
+<div class="layui-form">
+    <input name="id" type="hidden" value="{$member.id}" />
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" disabled="disabled" value="{$member.realname}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">现有积分</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" disabled="disabled" value="{$member.points}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">调整后积分</label>
+        <div class="layui-input-inline">
+            <input type="text" name="points"
+                   required lay-verify="required"
+                   placeholder="调整后积分"
+                   autocomplete="off" class="layui-input"
+                   value="{$member.points}" {/if}
+            >
+        </div>
+    </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">调整原因</label>
+            <div class="layui-input-block">
+                <textarea name="info" placeholder="请输入内容" class="layui-textarea"></textarea>
+            </div>
+        </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit id="save" lay-filter="save">保存</button>
+        </div>
+    </div>
+</div>
+</div>
+{/block}
+{block name="script"}
+<script>
+    layui.use(['element', 'form', 'layer'], function () {
+        var layer = layui.layer;
+        var form = layui.form;
+        form.on('submit(save)', function (data) {
+            http.post(api.updateMemberPoints, data.field, function (res) {
+                layer.msg(res.msg);
+                layout.layClose(1200, function () {
+                    parent.window.location.reload();
+                });
+            }, function (res) {
+                layer.alert(res.err);
+            });
+        })
+    });
+</script>
+{/block}

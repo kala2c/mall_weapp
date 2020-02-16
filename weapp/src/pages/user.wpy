@@ -1,0 +1,284 @@
+<style scoped>
+@import '../assets/back.wxss';
+view.container {
+  background-size: 750rpx 240rpx;
+  background-repeat: no-repeat;
+  padding-top: 180rpx;
+  /* padding: 15rpx 20rpx; */
+}
+view.card-wrap {
+  background: #FFFFFF;
+  border-radius: 20rpx 20rpx 0 0;
+}
+/* 用户微信信息 */
+.userinfo {
+  position: relative;
+  width: 100%;
+  height: 160rpx;
+}
+.userinfo-avatar {
+  position: absolute;
+  left: 60rpx;
+  top: -36rpx;
+  display: block;
+  box-sizing: border-box;
+  width: 140rpx;
+  height: 140rpx;
+  border: 6rpx solid #fff;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.userinfo-nickname {
+  position: absolute;
+  left: 240rpx;
+  top: 35rpx;
+  font-size: 36rpx;
+  color: #364354;
+  letter-spacing: 0;
+}
+/* 授权按钮位置 */
+.auth-btn {
+  position: absolute;
+  top: 100rpx;
+  left: 50%;
+  transform: translateX(-75rpx);
+}
+/* 授权与完善个人信息按钮 */
+.auth-btn,
+.bindwx-btn {
+  display: block;
+  width: 150rpx;
+  height: 56rpx;
+  margin: 20rpx auto;
+  border-radius: 12rpx;
+  background-image: linear-gradient(-89deg, #FDAF20 5%, #FFC901 100%, #FFCA00 100%);
+  line-height: 56rpx;
+  color: #fff;
+  font-size: 32rpx;
+}
+.bindwx-btn {
+  width: 250rpx;
+}
+/* 完善个人信息 */
+.bindwx {
+  width: 670rpx;
+  height: 240rpx;
+  padding-top: 30rpx;
+  margin: 20rpx auto;
+  border-top: 2rpx solid #eee;
+  background-color: #fefefe;
+  border-radius: 10rpx;
+  text-align: center;
+}
+
+.content {
+  padding: 0 40rpx;
+}
+</style>
+<template>
+  <view class="container">
+    <view class="card-wrap">
+      <block wx:if="{{ !authorized }}">
+        <view class="userinfo">
+            <image src="../assets/headpic.png" aria-label="default headpic" class="userinfo-avatar"/>
+            <text class="userinfo-nickname" type="userNickName">尚未授权，请授权后使用</text>
+            <button
+              class="auth-btn"
+              type="primary"
+              size="mini"
+              bind:if="{{canIUse}}" 
+              open-type="getUserInfo" 
+              bindgetuserinfo="onGotUserInfo"
+            >授权</button>
+        </view>  
+      </block>
+      <block wx:else>
+        <view class="userinfo">
+            <open-data class="userinfo-avatar" type="userAvatarUrl"></open-data>
+            <block wx:if="{{!bindwx}}">
+              <open-data class="userinfo-nickname" type="userNickName"></open-data>
+            </block>
+            <block wx:else>
+              <view class="userinfo-nickname">{{userInfo.realname}}</view>
+            </block>
+        </view>
+        <block wx:if="{{!bindwx}}">
+          <view class="bindwx">
+            <text class="bindwx-text">尚未完善个人信息\n完善后才能继续使用</text>
+            <button class="bindwx-btn" @tap="onShowBindwx()" type="primary">完善个人信息</button>
+          </view>
+        </block>
+        <block wx:else>
+          <view class="content">
+            <van-cell-group>
+              <!-- <van-cell
+                title="姓名：{{userInfo.realname}}"
+                value=""
+              /> -->
+              <van-cell
+                icon="phone-o"
+                title="手机号"
+                value="{{userInfo.phone}}"
+              />
+              <van-cell
+                icon="star-o"
+                title="积分"
+                value="{{userInfo.points}}"
+              />
+            </van-cell-group>   
+            <van-cell
+              is-link
+              icon="points"
+              title="积分明细"
+              link-type="navigateTo"
+              url="/pages/bill"
+            />   
+          </view>
+        </block>
+      </block>
+      <!-- 绑定个人信息的浮层 一个独立组件 -->
+      <block wx:if="{{ showBindwx }}">
+        <bindwx></bindwx>
+        <van-toast />
+      </block>
+      <van-dialog id="van-alert" />
+    </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import Bindwx from '../components/bindwx'
+import Dialog from '../components/van/dialog/dialog'
+import api from '../api/api'
+import env from '../utils/env'
+import tip from '../utils/tip'
+export default class User extends wepy.page {
+  config = {
+    navigationBarTitleText: '个人信息',
+    usingComponents: {
+      'van-button': '../components/van/button/index',
+      'van-cell': '../components/van/cell/index',
+      'van-cell-group': '../components/van/cell-group/index',
+      'van-dialog': '../components/van/dialog/index',
+      'van-field': '../components/van/field/index',
+      'van-toast': '../components/van/toast/index'
+    }
+  }
+  components = {
+      bindwx: Bindwx,
+  }
+  data = {
+    canIUse: wepy.canIUse('button.open-type.getUserInfo'),
+    authorized: false,
+    bindwx: false,
+    showBindwx: false,
+    showJoinOrgan: false,
+    userInfo: {
+      realname: '加载中',
+      points: '加载中',
+      phone: '加载中'
+    },
+    bindwxform: {
+      realname: null,
+      student_id: null,
+      college_id: null,
+      password: null
+    }
+  }
+  async onLoad() {
+    tip.loading()
+    let token = wepy.getStorageSync(env.TOKEN)
+    // 判断是否微信授权
+    let res = await wepy.getSetting()
+    if (res.authSetting['scope.userInfo']) {
+      this.authorized = true
+      // 获取个人信息
+      let selfinfo = await api.selfinfo({
+        token
+      })
+      if (selfinfo.statusCode === 200) {
+        this.userInfo = selfinfo.data
+        this.bindwx = true
+      }
+    }
+    tip.loaded()
+    this.$apply()
+  }
+  async onShow() {
+    if (this.bindwx) {
+      tip.loading()
+      let token = wepy.getStorageSync(env.TOKEN)
+      let selfinfo = await api.selfinfo({
+        token
+      })
+      if (selfinfo.statusCode === 200) {
+        this.userInfo = selfinfo.data
+        this.bindwx = true
+      }
+      tip.loaded()
+      this.$apply()      
+    }
+  }
+  events = {
+    'closeBindwx': () => {
+      this.showBindwx = false
+    },
+    'bindwxSuccess': async () => {
+      let token = wepy.getStorageSync(env.TOKEN)
+      let selfinfo = await api.selfinfo({
+        token
+      })
+      if (selfinfo.statusCode === 200) {
+        this.userInfo = selfinfo.data
+      }
+      this.bindwx = true
+      this.$apply()
+    }
+  }
+  methods = {
+    async onGotUserInfo(res) {
+      if (res.detail.errMsg === 'getUserInfo:fail auth deny') {
+        // 用户拒绝授权
+        Dialog({
+          title: '提示',
+          message: '拒绝授权，将无法使用本小程序',
+          selector: '#van-alert'
+        })
+      } else {
+        // 判断是否初次授权
+        let res = await wepy.login()
+        if (res.errMsg === 'login:ok') {
+          let token = await api.jscode2session({
+            query: {jscode: res.code}
+          })
+          // 还未绑定用户信息
+          if (token.statusCode === 200) {  
+            // 设置token
+            wepy.setStorageSync(env.TOKEN, token.data.token)
+            // 获取个人信息
+            let selfinfo = await api.selfinfo({
+              token: token.data.token
+            })
+            console.log(selfinfo)
+            if (selfinfo.statusCode === 200) {
+              this.userInfo = selfinfo.data
+            } else {
+              tip.error(selfinfo.data.err)
+            }
+            this.bindwx = true
+          } else {
+            tip.error(token.data.err)
+          }
+        }
+        // 显示头像 昵称
+        this.authorized = true
+      }
+      this.$apply()
+    },
+    async onShowBindwx() {
+      // 打开绑定个人信息组件
+      this.showBindwx = true
+    }
+  }
+}
+</script>

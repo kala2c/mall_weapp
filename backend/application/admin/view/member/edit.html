@@ -1,0 +1,56 @@
+{extend name="base" /}
+{block name="title"}
+{/block}
+{block name="style"}
+{/block}
+{block name="content"}
+<br><br>
+<div class="layui-form">
+    <input name="id" type="hidden" value="{$member.id}" />
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="realname"
+                   required lay-verify="required"
+                   placeholder="请输入"
+                   autocomplete="off" class="layui-input"
+                   value="{$member.realname}" {/if}
+            >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">手机号</label>
+        <div class="layui-input-inline">
+            <input type="text" name="phone"
+                   required lay-verify="required"
+                   placeholder="请输入"
+                   autocomplete="off" class="layui-input"
+                   value="{$member.phone}" {/if}
+            >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit id="save" lay-filter="save">保存</button>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script>
+    layui.use(['element', 'form', 'layer'], function () {
+        var layer = layui.layer;
+        var form = layui.form;
+        form.on('submit(save)', function (data) {
+            http.post(api.updateMemberInfo, data.field, function (res) {
+                layer.msg(res.msg);
+                layout.layClose(1200, function () {
+                    parent.window.location.reload();
+                });
+            }, function (res) {
+                layer.alert(res.err);
+            });
+        })
+    });
+</script>
+{/block}

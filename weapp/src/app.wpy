@@ -1,0 +1,144 @@
+<style scoped>
+view.container {
+  background-color: #fafafa;
+}
+view.empty-data {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100rpx;
+  border-top: 2rpx solid #fff;
+  background-color: #fff;
+  color: #aaa;
+  text-align: center;
+  line-height: 100rpx;
+}
+</style>
+
+<script>
+import wepy from 'wepy'
+import 'wepy-async-function'
+// import Dialog from './components/van/dialog/dialog'
+import api from './api/api'
+import env from './utils/env'
+import tip from './utils/tip'
+
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/index',
+      'pages/user',
+      'pages/order',
+      'pages/detail',
+      'pages/bill'
+    ],
+    window: {
+      backgroundTextStyle: 'dark',
+      navigationBarBackgroundColor: '#f2f2f2',
+      navigationBarTitleText: '春韵艺术培训',
+      navigationBarTextStyle: 'black'
+    },
+    usingComponents: {
+      'van-icon': './components/van/icon/index'
+      // 'van-dialog': './components/van/dialog/index'
+    },
+    tabBar: {
+      color: '#9b9b9b',
+      selectedColor: '#fdaf20',
+      backgroundColor: '#efefef',
+      list: [
+        {
+          'pagePath': 'pages/index',
+          'iconPath': './assets/tabbar/index_b.png',
+          'selectedIconPath': './assets/tabbar/index.png',          
+          'text': '积分商城'
+        },
+        {
+          'pagePath': 'pages/order',
+          'iconPath': './assets/tabbar/order_b.png',
+          'selectedIconPath': './assets/tabbar/order.png',
+          'text': '商品订单'
+        },
+        {
+          'pagePath': 'pages/user',
+          'iconPath': './assets/tabbar/user_b.png',
+          'selectedIconPath': './assets/tabbar/user.png',
+          'text': '个人信息'
+        }
+      ]
+    }
+  }
+
+  globalData = {
+    userInfo: null,
+    token: null
+  }
+
+  constructor () {
+    super()
+    this.use('requestfix')
+    this.use('promisify')
+  }
+
+  async onLaunch() {
+    tip.loading()
+    // 检查是否授权
+    // let self = this
+    let res = await wepy.getSetting()
+    if (res.authSetting['scope.userInfo'] === undefined) {
+      wepy.switchTab({
+        url: '/pages/user'
+      })
+    } else {
+      // 如果授权进行登录
+      // 是否已登录
+      let token = wepy.getStorageSync(env.TOKEN)
+      let isLogin = true
+      if (token) {
+        // 检查token是否过期
+        let res = await api.selfinfo({
+          token
+        })
+        if (res.statusCode === 401) {
+          isLogin = false
+        }
+        if (res.statusCode === 200) {
+          this.userInfo = res.data
+        } else {
+          tip.error(res.data.err)
+        }
+      } else {
+        isLogin = false
+      }
+      // 进行登录 或 更新token
+      if (!isLogin) {
+        let res = await wepy.login()
+        if (res.errMsg === 'login:ok') {
+          let token = await api.jscode2session({
+            query: {jscode: res.code}
+          })
+          // 还未绑定用户信息
+          if (token.statusCode === 403) {
+            wepy.switchTab({
+              url: '/pages/user'
+            })
+            // return false
+          }
+          // 设置token
+          wepy.setStorageSync(env.TOKEN, token.data.token)
+          // 获取个人信息
+          let selfinfo = await api.selfinfo({
+            token: token.data.token
+          })
+          console.log(selfinfo)
+          if (selfinfo.statusCode === 200) {
+            this.userInfo = selfinfo.data
+          } else {
+            tip.error(selfinfo.data.err)
+          }
+        }
+      }
+    }
+    tip.loaded()
+  }
+}
+</script>

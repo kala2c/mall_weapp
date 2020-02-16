@@ -1,0 +1,84 @@
+{extend name="action" /}
+{block name="title"}
+<title>商品管理</title>
+{/block}
+{block name="style"}
+<style></style>
+{/block}
+{block name="content"}
+<div class="layui-container">
+    
+<table class="layui-table">
+    <colgroup>
+        <col width="50">
+        <col width="100">
+        <col width="250">
+        <col width="30">
+        <col width="30">
+        <col width="60">
+    </colgroup>
+    <thead>
+    <tr>
+        <th>图片</th>
+        <th>名称</th>
+        <th>简介</th>
+        <th>积分</th>
+        <th>库存</th>
+        <th>管理</th>
+    </tr>
+    </thead>
+    <tbody>
+    {volist name="list" id="item"}
+    <tr>
+        <td>
+            <img width="40" height="40" src="{$item.bannerUrl}">
+        </td>
+        <td>{$item.title}</td>
+        <td><?=substr($item['content'], 0, 120)?><?=strlen($item['content']) > 120 ? '...' : ''?></td>
+        <td>{$item.price}</td>
+        <td>{$item.number}</td>
+        <td><button data-id="{$item.id}" type="button" class="edit layui-btn layui-btn-normal layui-btn-sm">修改</button>
+            <button data-id="{$item.id}" type="button" class="del layui-btn layui-btn-danger layui-btn-sm">删除</button></td>
+    </tr>
+    {/volist}
+    </tbody>
+</table>
+{include file="page"}
+</div>
+{/block}
+{block name="script"}
+<script>
+    layui.use(['element', 'jquery', 'layer'], function () {
+        var layer = layui.layer;
+
+         // 修改
+        $('.edit').click(function (e) {
+            var id = $(e.target).attr('data-id');
+            layer.open({
+                type: 2,
+                title: '修改商品信息',
+                area: ['700px', '500px'],
+                content: ['/action/goods/edit?id=' + id]
+            });
+        });
+        // 删除
+        $('.del').click(function (e) {
+            var id = $(e.target).attr('data-id');
+            layer.confirm('确定删除吗', {
+                btn: ['确定', '取消']
+            }, function () {
+                http.get('/admin/goods/delete', {id: id}, function (res, status) {
+                    layer.msg(res.msg);
+                    layout.refresh();
+                }, function (res, status) {            
+                    layer.alert(res.err);
+                })
+            }, function () {
+                // layer.msg('取消操作');
+            })
+        });
+    });
+
+
+</script>
+{/block}

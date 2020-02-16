@@ -1,0 +1,187 @@
+<style scoped>
+  view.wrap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ddd;
+    opacity: 0.7;
+  }
+  view.bind-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-color: #fff;
+    transform: translate(-50%, -50%);
+    width: 600rpx;
+    height: 400rpx;
+    padding: 25rpx;
+    opacity: 1;
+  }
+  view.bind-container .title-wrap {
+    text-align: center;
+    width: 100%;
+    padding-bottom: 20rpx;
+  }
+  view.bind-container .form-btn-wrap {
+    width: 600rpx;
+    margin-top: 20rpx;
+    text-align: center;
+  }
+  view.bind-container .form-btn-wrap .form-btn {
+    /* display: block; */
+    width: 260rpx;
+  }
+  view.bind-container .form-btn-wrap .form-btn.close {
+    margin-left: 30rpx;
+  }
+  .college-picker {
+    /* width: 475rpx; */
+    height: 50rpx;
+    font-size: 30rpx;
+    padding: 16rpx 30rpx;
+    background-color: #fff;
+  }
+  .college-picker .field-name {
+    width: 60rpx;
+    padding-left: 12rpx;
+  }
+  .college-picker .field-content {
+    display: inline-block;
+    width: 365rpx;
+    text-align: center;
+  }
+</style>
+<template>
+  <view>
+    <view class="wrap"></view>
+    <view class="bind-container">
+      <view class="title-wrap">
+        <text class="title">完善信息</text>
+      </view>
+      <form bindsubmit="onFormSubmit">
+        <van-cell-group>
+          <van-field
+            id="phone"
+            label="手机"
+            left-icon="manager-o"
+            clearable
+            placeholder="请输入手机号"
+            bind:change="onChange"
+          />
+          <van-field
+            id="realname"
+            label="姓名"
+            left-icon="records"
+            clearable
+            placeholder="请输入姓名"
+            bind:change="onChange"
+          />
+          <!-- <van-field
+            id="college_id"
+            label="学院"
+            left-icon="hotel-o"
+            required
+            placeholder="请选择学院"
+            bind:change="onChange"
+          /> -->
+        </van-cell-group>
+        <view class="form-btn-wrap">
+          <van-button class="form-btn" type="primary" form-type="submit" @tap="onFormSubmit()">确定</van-button>
+          <van-button class="form-btn close" type="default" @tap="tapCloseSelf()">关闭</van-button>
+        </view>
+        <!-- <button form-type="submit">测试</button> -->
+      </form>
+    </view>
+    <van-toast id="van-toast" />
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import api from '../api/api'
+import env from '../utils/env'
+import Toast from './van/toast/toast'
+export default class Bindwx extends wepy.component {
+  config = {
+    usingComponents: {
+      'van-button': './van/button/index',
+      'van-field': './van/field/index',
+      'van-toast': './van/toast/index',
+      'van-icon': './van/icon/index'
+    }
+  }
+  data = {
+    // formdata: {
+    //   student_id: null,
+    //   password: null,
+    //   realname: null,
+    //   college_id: null
+    //   jscode: null
+    // }
+    formdata: {
+      realname: '姓名',
+      phone: '0',
+      jscode: null
+    }
+  }
+  async onLoad() {
+    // let collegeList = await api.collegelist()
+    // if (collegeList.statusCode === 200) {
+    //   this.collegeList = collegeList.data
+    //   this.$apply()
+    // } else {
+    //   Toast(collegeList.data.err)
+    // }
+  }
+  methods = {
+    // 关闭表单
+    tapCloseSelf() {
+      this.$emit('closeBindwx')
+    },
+    test() {
+      console.log(env.TOKEN, api)
+      Toast('测试')
+    },
+    // 表单修改时修改data中的数据
+    onChange(e) {
+      this.formdata[e.target.id] = e.detail
+      this.$apply()
+    },
+    onPickerChange(e) {
+      this.collegeListIndex = e.detail.value
+      this.formdata.college_id = this.collegeList[e.detail.value].id
+      this.$apply()
+    },
+    async onFormSubmit() {
+      // 获取表单数据
+      let data = this.formdata
+      if (!data.phone || !data.realname) {
+        Toast('请将信息填写完整')
+        return false
+      }
+      // 获取登录code添加到数据
+      let jscode = await wepy.login()
+      if (jscode.errMsg === 'login:ok') {
+        data.jscode = jscode.code
+      }
+      // 绑定
+      let res = await api.bindwx({
+        query: data
+      })
+      if (res.statusCode === 200) {
+        Toast('操作成功')
+        // 绑定成功会获得登录态
+        wepy.setStorageSync(env.TOKEN, res.data.token)
+        this.$emit('bindwxSuccess')
+        this.$emit('closeBindwx')
+      } else if (res.statusCode === 403) {
+        Toast(res.data.err)
+      } else {
+        Toast('系统错误，稍后再试')
+        this.$emit('closeBindwx')
+      }
+    }
+  }
+}
+</script>

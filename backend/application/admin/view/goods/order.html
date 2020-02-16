@@ -1,0 +1,39 @@
+{extend name="action" /}
+{block name="title"}
+{/block}
+{block name="style"}
+{/block}
+{block name="content"}
+<table class="layui-table">
+  <colgroup>
+    <col width="150">
+    <col width="200">
+    <col>
+  </colgroup>
+  <thead>
+    <tr>
+      <th>商品名</th>
+      <th>购买者</th>
+      <th>价格</th>
+      <th>订单号</th>
+      <th>状态</th>
+      <th>管理</th>
+    </tr> 
+  </thead>
+  <tbody>
+  	{volist name="list" id="item"}
+	    <tr>
+	        <td>{$item.goods.title}</td>
+	        <td>{$item.user.realname}</td>
+	        <td>{$item.price}</td>
+	        <td>{$item.orderno}</td>
+	        <td>{$item.statusText}</td>
+	        <td><button type="button" class="layui-btn layui-btn-normal layui-btn-sm">标记为已处理</button></td>
+	    </tr>
+    {/volist}
+  
+  </tbody>
+</table>
+{/block}
+{block name="script"}
+{/block}

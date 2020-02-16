@@ -1,0 +1,65 @@
+{extend name="action" /}
+{block name="title"}
+<title>成员管理</title>
+{/block}
+{block name="style"}
+<style>
+ .container {
+     padding: 20px 30px;
+ }
+</style>
+{/block}
+{block name="content"}
+<div class="container">
+    <div class="layui-collapse">
+        <div class="layui-colla-item">
+            <h2 class="layui-colla-title">按条件查找</h2>
+            <div class="layui-colla-content {if condition="$realname || $phone"}layui-show{/if}">
+                <form class="layui-form" action="/action/member/manage?page={$page}" method="post">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">姓名</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="realname" type="text" value="{$realname ?? ''}" />
+                        </div>
+                        <label class="layui-form-label">手机</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="phone" type="text" value="{$phone ?? ''}" />
+                        </div>
+                        <div class="layui-input-inline">
+                            <button class="layui-btn" lay-submit id="save" lay-filter="activityForm">确定</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {include file="member/list"}
+    {include file="page"}
+</div>
+{/block}
+{block name="script"}
+<script>
+    layui.use(['element', 'jquery', 'layer'], function () {
+        var layer = layui.layer;
+        // $('.layui-collapse').click();
+        $('.edit-info').click(function (e) {
+            var id = $(e.target).attr('data-id');
+            layer.open({
+                type: 2,
+                title: '调整信息',
+                area: ['500px', '300px'],
+                content: ['/action/member/editinfo?id=' + id]
+            });
+        });
+        $('.edit-points').click(function (e) {
+            var id = $(e.target).attr('data-id');
+            layer.open({
+                type: 2,
+                title: '调整积分',
+                area: ['600px', '500px'],
+                content: ['/action/member/editpoints?id=' + id]
+            });
+        });
+    });
+</script>
+{/block}

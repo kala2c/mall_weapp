@@ -1,0 +1,280 @@
+<style lang="less" scoped>
+  view.container {
+    background-color: #fafafa;
+    // padding-left: 40rpx;
+    // padding-right: 40rpx;
+    padding-bottom: 100rpx;
+  }
+  .header,
+  .info {
+    padding-left: 40rpx;
+    padding-right: 40rpx;
+    background-color: #fff;
+  }
+  .clearfloat {
+    display: block;
+    clear: both;
+  }
+  view.bottom {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100rpx;
+    color: #fff;
+    text-align: center;
+    line-height: 100rpx;
+  }
+  view.bottom.exchange {
+    background-image: linear-gradient(-89deg, #FDAF20 5%, #FFC901 100%, #FFCA00 100%);
+  }
+  view.bottom.exchanged {
+    background-color: #9b9b9b;
+  }
+  // .banner image {
+  //   display: block;
+  //   width: 670rpx;
+  //   height: 670rpx;
+  //   margin: 10rpx auto;
+  // }
+  .banner swiper {
+    display: block;
+    width: 670rpx;
+    height: 670rpx;
+    margin: 10rpx auto;
+    swiper-item {
+      widows: 100%;
+      height: 100%;
+      image {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+  view.title {
+    width: 100%;
+    margin-top: 34rpx;
+    font-size: 36rpx;
+    color: #4A4A4A;
+    letter-spacing: 0;
+  }
+  .price {
+    display: block;
+    padding-top: 25rpx;
+    padding-bottom: 25rpx;
+    .price-left {
+      position: relative;
+      float: left;
+      box-sizing: border-box;
+      width: 46rpx;
+      height: 46rpx;
+      padding: 3rpx;
+      image {
+        position: absolute;
+        top: 4rpx;
+        width: 40rpx;
+        height: 40rpx;
+      }
+    }
+    .price-right {
+      float: left;
+      height: 46rpx;
+      line-height: 46rpx;
+      text {
+        font-size: 38rpx;
+        color: #FDAF20;
+      }
+    }
+  }
+  .info {
+    margin-top: 20rpx;
+    // padding: 5rpx 15rpx;
+    .info-title {
+      position: relative;
+      height: 100rpx;
+      border-bottom: 2rpx solid #eee; 
+      image {
+        position: absolute;
+        top: 32rpx;
+        width: 36rpx;
+        height: 36rpx;
+      }
+      text {
+        display: block;
+        position: absolute;
+        top: 30rpx;
+        left: 52rpx;
+        font-size: 32rpx;
+      }
+    }
+    .info-content {
+      font-size: 28rpx;
+      color: #9B9B9B;
+      letter-spacing: 0;
+      padding-top: 30rpx;
+      padding-bottom: 30rpx;
+    }
+  }
+</style>
+<template>
+  <view class="container">
+    <van-toast id="van-toast" />
+    <van-dialog id="van-dialog" />
+    <!-- <van-nav-bar
+      title="活动详情"
+      left-text="返回"
+      left-arrow
+      bind:click-left="tapClickLeft()"
+    /> -->
+    <view class="header">
+      <view class="banner">
+        <swiper indicator-dots="true"
+        autoplay="true" interval="3000" duration="600">
+        <repeat for="{{bannerList}}" key="index" item="item" >
+          <swiper-item>
+            <image src="{{item}}" />
+          </swiper-item>
+        </repeat>
+      </swiper>
+      </view>
+      <view class="title">
+        <text class="title">{{goods.title}}</text>
+      </view>
+      <view class="price">
+        <view class="price-left">
+          <image src="../assets/points.png"></image>
+        </view>
+        <view class="price-right">
+          <text>{{goods.price}}</text>
+        </view>
+        <div class="clearfloat"></div>
+      </view>
+    </view>
+    <view class="info">
+      <view class="info-title">
+        <image src="../assets/desc.png"></image>
+        <text>简介</text>
+      </view>
+      <view class="info-content">
+        <text class="class">{{goods.content}}</text>  
+      </view>
+    </view>
+    <block wx:if="{{showExchangeBtn}}" class="class">
+      <view class="bottom exchange" id="{{goods.id}}" @tap="tapExchange">
+        兑换
+      </view>
+    </block>
+    <block wx:else class="class">
+      <view class="bottom exchanged" bind:show="{{!showExchangeBtn}}">
+        无余量
+      </view>
+    </block>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import api from '../api/api'
+import env from '../utils/env'
+import tip from '../utils/tip'
+import Toast from '../components/van/toast/toast'
+import Dialog from '../components/van/dialog/dialog'
+export default class Detail extends wepy.page {
+  config = {
+    navigationBarTitleText: '商品详情',
+    backgroundTextStyle: 'light',
+    usingComponents: {
+      'van-toast': '../components/van/toast/index',
+      'van-dialog': '../components/van/dialog/index',
+      'van-nav-bar': '../components/van/nav-bar/index',
+      'van-button': '../components/van/button/index',
+      'van-cell': '../components/van/cell/index',
+      'van-cell-group': '../components/van/cell-group/index'
+    }
+  }
+  data = {
+    activeIndex: 1,
+    goods: {},
+    showExchangeBtn: false,
+    userInfo: [],
+    bannerList: []
+  }
+  async onLoad(options) {
+    console.log(options)
+    let id = options.id
+    let goods = await api.goodsdetail({
+      query: {
+        id
+      }
+    })
+    if (goods.statusCode === 200) {
+      this.goods = goods.data
+      this.bannerList = goods.data.banner.split(',')
+      if (goods.data.number > 0) {
+        this.showExchangeBtn = true
+      }
+    } else {
+      Toast(goods.data.err)
+    }
+    let token = wepy.getStorageSync(env.TOKEN)
+    let selfinfo = await api.selfinfo({
+      token
+    })
+    if (selfinfo.statusCode == 200) {
+      this.userInfo = selfinfo.data
+    } else {
+      Toast(selfinfo.data.err)
+    }
+    this.$apply()
+  }
+  
+  methods = {
+    tapClickLeft() {
+      wepy.navigateBack({
+        delta: 1
+      })
+    },
+    async tapExchange(e) {
+      let id = e.currentTarget.id
+      // 兑换前询问
+      let confirm = false
+      await Dialog.confirm({
+        title: '提示',
+        message: '是否确定兑换，确认后不可取消'
+      }).then(() => {
+        confirm = true
+        console.log(1)
+        Dialog.close();
+      }).catch(() => {
+        confirm = false
+        console.log(2)
+        Dialog.close();
+      })
+      if (!confirm) {
+        return false
+      }
+      tip.loading()
+      let token = wepy.getStorageSync(env.TOKEN)
+      // 兑换
+      let res = await api.exchange({
+        token: token,
+        query: {
+          id: id
+        }
+      })
+      if (res.statusCode === 200) {
+        tip.loaded();
+        tip.success(res.data.msg)
+        setTimeout(function() {
+          wepy.switchTab({
+            url: '/pages/order'
+          })
+        }, 1300)
+        this.$apply()
+      } else {
+        tip.loaded();
+        Toast(res.data.err)
+      }
+    }
+  }
+}
+</script>

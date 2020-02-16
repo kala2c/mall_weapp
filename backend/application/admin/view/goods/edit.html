@@ -1,0 +1,41 @@
+{extend name="action" /}
+{block name="title"}
+{/block}
+{block name="style"}
+<style>
+	#upload-banner-img-btn {
+		display: none;
+	}
+	#template-banner-img {
+		display: none;
+		padding: 20px 20px;
+	}
+
+    .banner-preview {
+        padding: 10px 20px;
+    }
+</style>
+{/block}
+{block name="content"}
+{include file="goods/ele-form"}
+<script>
+    var imgList = "";
+    imgList = "{if (isset($edit))}{$goods.banner}{/if}";
+    if (imgList.trim().length) {
+        imgList = imgList.split(',');
+    } else {
+        imgList = [];
+    }
+    console.log(imgList)
+
+    $("#upload-btn").click(function () {
+        $('#file').click();
+    })
+
+    $('#file').on('change', function (event) {
+        console.log(event.target.files)
+    })
+</script>
+{/block}
+{block name="script"}
+{/block}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    {block name="title"}{/block}
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    {block name="style"}{/block}
+</head>
+<body>
+{block name="content"}{/block}
+<script src="/static/layui/layui.js"></script>
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/api.js?id=999666888"></script>
+{if (isset($unauth))}
+<script>
+    parent.window.open('/admin', '_self');
+</script>
+{/if}
+{block name="script"}{/block}
+</body>
+</html>

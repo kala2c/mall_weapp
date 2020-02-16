@@ -1,0 +1,70 @@
+<style scoped>
+view.container {
+  padding: 30rpx 46rpx;
+}
+.bill-price {
+    width: 100%;
+    display: -webkit-flex;
+    display: flex;
+    padding: 0 15px;
+    box-sizing: border-box;
+    background-color: #fff;
+    color: #333;
+    font-size: 14px;
+}
+</style>
+<template>
+  <view class="container">
+    <van-toast id="van-toast" />
+    <van-dialog id="van-dialog" />
+    <block wx:if="{{billList.length}}">
+        <repeat for="{{billList}}" key="id" item="item" >
+            <van-panel title="{{item.info}}" desc="{{item.create_time}}" status="积分{{item.status === 1 ? '+' : '-'}}{{item.price}}">
+            </van-panel>      
+        </repeat>
+    </block>
+    <block wx:else>
+      <view class="empty-data">暂无相关数据</view>
+    </block>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import api from '../api/api'
+import env from '../utils/env'
+import Toast from '../components/van/toast/toast'
+export default class Bill extends wepy.page {
+  config = {
+    navigationBarTitleText: '积分明细',
+    usingComponents: {
+      'van-toast': '../components/van/toast/index',
+      'van-nav-bar': '../components/van/nav-bar/index',
+      'van-button': '../components/van/button/index',
+      'van-cell': '../components/van/cell/index',
+      'van-cell-group': '../components/van/cell-group/index',
+      'van-panel': '../components/van/panel/index'
+    }
+  }
+  data = {
+    billList: []
+  }
+  async onLoad(options) {
+    console.log(options)
+    let id = options.id
+    let token = wepy.getStorageSync(env.TOKEN)
+    let billList = await api.billlist({
+      token: token
+    })
+    if (billList.statusCode === 200) {
+      this.billList = billList.data
+    } else {
+      Toast(billList.data.err)
+    }
+    this.$apply()
+  }
+  
+  methods = {
+    
+  }
+}
+</script>

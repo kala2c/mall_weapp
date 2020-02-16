@@ -1,0 +1,77 @@
+{extend name="action" /}
+{block name="title"}
+{/block}
+{block name="style"}
+<style>
+	#upload-banner-img-btn {
+		display: none;
+	}
+	#template-banner-img {
+		display: none;
+		padding: 20px 20px;
+	}
+	.banner-preview {
+		padding: 10px 110px;
+	}
+	.banner-preview .img-wrap {
+		position: relative;
+		display: inline-block;
+		width: 180px;
+		height: 180px;
+		margin: 10px;
+	}
+	.banner-preview .img-wrap img {
+		width: 100%;
+		height: 100%;
+	}
+	.banner-preview .del-btn {
+		position: absolute;
+		right: 0;
+		top: 0;
+		content: 'X';
+		display: block;
+		width: 25px;
+		height: 25px;
+		text-align: center;
+		line-height: 25px;
+		color: red;
+		background-color: #fff;
+		opacity: 0.8;
+		cursor: pointer;
+	}
+	.banner-preview .add-btn-wrap {
+		width: 200px;
+		height: 200px;
+	}
+	.banner-preview .add-btn-wrap .add-btn {
+		position: relative;
+		box-sizing: border-box;
+		width: 180px;
+		height: 180px;
+		border: 3px solid #ccc;
+		margin-top: 10px;
+		margin-left: 10px;
+		border-radius: 20px;
+	}
+	.banner-preview .add-btn-wrap .add-btn b,
+	.banner-preview .add-btn-wrap .add-btn i {
+		position: absolute;
+		display: block;
+		width: 150px;
+		height: 5px;
+		margin-top: 87px;
+		margin-left: 15px;
+		background-color: #ccc;
+	}
+	.banner-preview .add-btn-wrap .add-btn i {
+		transform: rotate(90deg);
+
+	}
+</style>
+{/block}
+{block name="content"}
+	{include file="goods/ele-form"}
+{/block}
+{block name="script"}
+	{include file="goods/ele-formscript"}
+{/block}

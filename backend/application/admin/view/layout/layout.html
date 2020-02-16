@@ -1,0 +1,134 @@
+{extend name="base" /}
+{block name="title"}
+<title>管理后台</title>
+{/block}
+{block name="style"}
+<link rel="stylesheet" href="/static/style/layout.css">
+{/block}
+{block name="content"}
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">管理后台</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item"><a href="/administrator?target=welcome">首页</a></li>
+            <!--<li class="layui-nav-item">-->
+            <!--<a href="javascript:;">下拉框</a>-->
+            <!--<dl class="layui-nav-child">-->
+            <!--<dd><a href="">条目一</a></dd>-->
+            <!--<dd><a href="">条目二</a></dd>-->
+            <!--<dd><a href="">条目三</a></dd>-->
+            <!--</dl>-->
+            <!--</li>-->
+            <li class="layui-nav-item">
+                <a href="javascript:;" id="refresh">
+                    刷新<i class="layui-icon layui-icon-refresh-3"></i>
+                </a>
+            </li>
+            {foreach $topBarConfig as $k => $v}
+            <li class="layui-nav-item"><a href="/administrator?target={$k}">{$v}</a></li>
+            {/foreach}
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <!--<img src="http://t.cn/RCzsdCq" class="layui-nav-img">-->
+                    {$username}
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="javascript:;" id="loginout-btn">退出登录</a></dd>
+                </dl>
+            </li>
+            <!--<li class="layui-nav-item"><a href="">退出登录</a></li>-->
+            <li class="layui-nav-item">&nbsp;&nbsp;&nbsp;&nbsp;</li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                {foreach $leftBarConfig as $menu => $content}
+                <li class="layui-nav-item">
+                    {if (is_array($content))}
+                    <a class="" href="javascript:;">{$menu}</a>
+                    <dl class="layui-nav-child">
+                        {foreach $content as $childMenu => $href}
+                        <dd><a class="action-nav" href="{$href}" target="action">{$childMenu}</a></dd>
+                        {/foreach}
+                    </dl>
+                    {else /}
+                    <a class="action-nav" href="{$content}" target="action">{$menu}</a>
+                    {/if}
+                </li>
+                {/foreach}
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body m-content">
+        <iframe class="m-action-iframe" src="{$defaultAction}" id="action" name="action" frameborder="0"></iframe>
+    </div>
+
+    <div class="layui-footer">
+        春韵艺校|© xxxxx.com
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script>
+    layui.use(['element', 'layer'], function () {
+        var element = layui.element;
+        var layer = layui.layer;
+        var refresh = document.getElementById('refresh')
+            , action = document.getElementById('action');
+        // 顶部导航栏刷新按钮
+        $(refresh).on('click', function () {
+            action.contentWindow.location.reload();
+            // console.log('刷新：'+action.contentWindow.location.href);
+        });
+        // 获取左侧左右导航项
+        var actionNav = $('.action-nav');
+        // 当iframe完成onload时 包含载入 重载等 自动选定左侧对应项
+        action.onload = function () {
+            var href = action.contentWindow.location.pathname;
+            // 清楚选中状态
+            actionNav.parent().removeClass('layui-this');
+            // 重新选中
+            actionNav.each(function () {
+                if ($(this).attr('href') === href) {
+                    $(this).parent().addClass('layui-this');
+                }
+            });
+        };
+        $('#loginout-btn').on('click', function () {
+            layer.confirm('真的要退出吗？', {
+                btn: ['确定', '取消']
+            }, function () {
+                http.get(api.loginout, {}, function (res, status) {
+                    if (status === 200) {
+                        layer.msg('已退出登录');
+                        layout.toLogin();
+                    }
+                }, function () {
+                    layer.alert('系统发生未知错误，直接关闭页面即可');
+                })
+            }, function () {
+                layer.msg('取消操作');
+            });
+        });
+        // var url = window.location.href;
+        // url = url.split('?');
+        // hash = url.map(function (item) {
+        //     return item.split('#');
+        // }).filter(function (item) {
+        //     return item.length > 1;
+        // });
+        // if (hash.length > 0) {
+        //     hash = hash[0][1];
+        // } else {
+        //
+        // }
+    })
+    ;
+</script>
+{/block}

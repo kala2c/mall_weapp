@@ -1,0 +1,24 @@
+body {
+    width: 100%;
+    height: 100%;
+    background-color: #eee;
+}
+
+/*#box {*/
+    /*width: 100%;*/
+    /*height: 100%;*/
+    /*background-color: #6584ee;*/
+/*}*/
+
+.m-form-wrap {
+    /*position: absolute;*/
+    /*top: 0;*/
+    width: 400px;
+    margin: 200px auto;
+}
+
+.m-form-title {
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: bolder;
+}

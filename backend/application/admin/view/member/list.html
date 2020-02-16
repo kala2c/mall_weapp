@@ -1,0 +1,26 @@
+<table class="layui-table">
+    <colgroup>
+        <col width="150">
+        <col width="200">
+        <col>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>姓名</th>
+        <th>手机</th>
+        <th>积分</th>
+        <th>管理</th>
+    </tr>
+    </thead>
+    <tbody>
+    {volist name="list" id="item"}
+    <tr>
+        <td>{$item.realname}</td>
+        <td>{$item.phone}</td>
+        <td>{$item.points}</td>
+        <td><button type="button" data-id="{$item.id}" class="edit-info layui-btn layui-btn-primary layui-btn-sm">调整信息</button>
+            <button type="button" data-id="{$item.id}" class="edit-points layui-btn layui-btn-primary layui-btn-sm">调整积分</button></td>
+    </tr>
+    {/volist}
+    </tbody>
+</table>

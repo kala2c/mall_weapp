@@ -1,0 +1,5 @@
+node_modules
+dist
+project.config.json
+.DS_Store
+.wepycache

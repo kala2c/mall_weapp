@@ -1,0 +1,9 @@
+.m-content {
+    overflow: hidden;
+}
+
+.m-content .m-action-iframe {
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+}
